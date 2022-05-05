@@ -14,24 +14,19 @@ const setupInput = (conn) => {
 };
 
 const handleUserInput = (key) => {
-  if (key === '\u0003') {
+  if (key === '\u0003') { //CTRL + C
     process.exit();
   }
 
-  if (key === '\u0014') {
+  if (key === '\u0014') { //CTRL + T
     return logInput = true;
   }
 
-  if (key === '\u0008') {
-    console.log('backspace');
-  }
-
-  if (key === '\r' && logInput) {
-    logInput = false;
-    connection.write(`GET: ${message}`);
-    console.log(`File ${message} requested from server!`);
+  if (key === '\r' && logInput) { //ENTER
     fileName = message.trim();
-    console.log(fileName);
+    console.log(`\nFile ${fileName} requested from server!`);
+    connection.write(`GET: ${fileName}`);
+    logInput = false;
     message = '';
     return;
   }

@@ -2,11 +2,11 @@ const net = require('net');
 const fs = require('fs');
 const { PORT, FILE_PATH } = require('./constants');
 
-let istream, serverSocket, connectedClient;
+let istream, serverSocket;
 
 const startServer = () => {
   const server = net.createServer(socket => {
-    socket.pipe(process.stdout);
+    // socket.pipe(process.stdout);
     serverSocket = socket;
   })
   .on('error', (err) => {
@@ -28,22 +28,25 @@ const startServer = () => {
 const handleClientRequest = (client, data) => {
   const request = data.split(' ');
 
-  console.log(data);
-
   if (request[0] === 'GET:') {
+
     if (fs.existsSync(FILE_PATH + request[1])) {
 
       client.write('HTTP/1.1 200 OK');
-
+      console.log(`Begin sending file for ${request[1]}`);
       istream = fs.createReadStream(FILE_PATH + request[1]);
       istream.on('readable', function() {
         let data;
-  
+        
         while (data = this.read()) {
-          serverSocket.write(data)
+          serverSocket.write(data);
         }
       });
-      istream.on('end', () => istream.close());
+      istream.on('end', () => {
+        console.log('Stream Ended..');
+        serverSocket.write('END');
+        istream.close();
+      });
 
     } else {
       client.write('HTTP/1.1 404 Not Found');
